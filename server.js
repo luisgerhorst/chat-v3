@@ -1,7 +1,8 @@
 var server = require('http').createServer(onRequest);
-var io = require('socket.io').listen(server, { log: false });
 var url = require("url");
 var fs = require('fs');
+
+var io = require('socket.io').listen(server, { log: false });
 var mime = require('mime');
 
 
