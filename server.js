@@ -6,14 +6,6 @@ var io = require('socket.io').listen(server, { log: false });
 var mime = require('mime');
 
 
-// Settings
-
-io.configure(function () {
-	io.set("transports", ["xhr-polling"]); 
-  	io.set("polling duration", 10); 
-});
-
-
 // HTTP Request
 
 function onRequest(request, response) {

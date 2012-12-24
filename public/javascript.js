@@ -8,6 +8,13 @@ var socket = io.connect('http://' + document.domain + '/');
 var rooms = {};
 
 
+// Settings
+
+io.configure(function () { 
+  	io.set("transports", ["xhr-polling"]); 
+  	io.set("polling duration", 10);
+});
+
 
 // Start App:
 
