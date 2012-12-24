@@ -1,4 +1,3 @@
-
 $(document).ready(function () {
 
 
@@ -6,14 +5,6 @@ var userID = Math.round(Math.random() * 9999999999);
 var socket = io.connect('http://' + document.domain + '/');
 
 var rooms = {};
-
-
-// Settings
-
-io.configure(function () { 
-  	io.set("transports", ["xhr-polling"]); 
-  	io.set("polling duration", 10);
-});
 
 
 // Start App:
