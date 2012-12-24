@@ -60,6 +60,11 @@ function route(path, response) {
 }
 
 
+io.configure(function () {
+	io.set("transports", ["xhr-polling"]); 
+  	io.set("polling duration", 10); 
+});
+
 
 io.sockets.on('connection', function (socket) {
 	
@@ -268,6 +273,6 @@ messages.save = function (message, roomID) {
 // Start
 
 messages.check();
-var port = process.env.PORT || 9004; // process.env.PORT for Heoku, 9004 for luisgerhorst.de
+var port = process.env.PORT || 9004; // process.env.PORT for Heroku, 9004 for luisgerhorst.de
 server.listen(port);
 console.log("Chat has started.");
