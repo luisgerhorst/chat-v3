@@ -268,5 +268,6 @@ messages.save = function (message, roomID) {
 // Start
 
 messages.check();
-server.listen(9004);
+var port = process.env.PORT || 9004; // process.env.PORT for Heoku, 9004 for luisgerhorst.de
+server.listen(port);
 console.log("Chat has started.");
