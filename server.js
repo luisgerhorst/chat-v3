@@ -11,8 +11,6 @@ var mime = require('mime');
 function onRequest(request, response) {
 	
 	var path = url.parse(request.url).pathname;
-	
-	console.log(path);
 
 	route(path, response);
 
@@ -22,8 +20,6 @@ function onRequest(request, response) {
 // HTTP Router
 
 function route(path, response) {
-
-	console.log(path);
 
 	var fsPath = __dirname + "/public/" + path;
 
