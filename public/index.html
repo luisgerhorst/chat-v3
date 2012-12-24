@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+<!-- 
+    
+  Project Version: view README.md
+	
+  Chat created early December 2012 by Luis Gerhorst - Website: http://luisgerhorts.de/ - Mail & Jabber: luis@luisgerhorst.de
+	
+-->
+
+  <title>Chat</title>
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="content-language" content="de-de" />
+  <meta name='robots' content='archive, index, follow'>
+  <meta name="viewport" content="initial-scale=1.0;"/>
+  
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  
+  <script type="text/javascript" src="/libraries/jquery.js"></script>
+  <script type="text/javascript" src="/libraries/moment.js"></script>
+  <script type="text/javascript" src="/libraries/socket.io.js"></script>
+  <script type="text/javascript" src="javascript.js"></script>
+  
+
+</head>
+<body>
+
+<div id="site-wrapper">
+
+<div id="wrapper">
+
+	<div id="sidebar">
+
+		<input id="set-name" placeholder="Name" type="text" />
+		
+		<h3 class="rooms">Rooms</h3>
+		<ol id="rooms"></ol>
+		
+		<input id="add-room" placeholder="+ add room" type="text" />
+		
+		<h3 class="users">Users</h3>
+		<div id="user-lists"></div>
+	
+	</div> <!-- #sidebar -->
+	
+	<div id="content">
+	
+		<div id="message-lists">
+			<ol id="getting-started" class="room active">
+				<li><b>Getting started:</b></li>
+				<li>1. Type your name into the name field.</li>
+				<li>2. Add a chat room (for example "lobby").</li>
+				<li>3. Post a message into the added room.</li>
+				<li>Note: All rooms are public, if someone knows the room name he can read all messages that are posted into it.</li>
+			</ol>
+		</div>
+	
+		<div class="new-message-box">
+			<input id="new-message" placeholder="Message" type="text" />
+		</div>
+		
+	</div> <!-- #content -->
+
+</div> <!-- #wrapper -->
+
+</div> <!-- #site-wrapper -->
+
+</body>

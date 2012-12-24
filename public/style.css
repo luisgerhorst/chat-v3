@@ -1,0 +1,281 @@
+/* Allgemein */
+
+body {
+    background: #fff;
+    font-size: 13px;
+    line-height: 18px;
+    font-family: "Lucida Grande", "Helvetica Neue", sans-serif;
+    color: rgb(93,93,95);
+    text-shadow: 0 1px 0 #fff;
+    background: #7C959F;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    border: none;
+}
+
+input {
+	-webkit-appearance: none; /* remove iOS inset shadow */
+}
+
+input:focus {
+	outline: none; /* remove Safari blue glow */
+}
+
+/* Areas */
+
+#site-wrapper {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+}
+
+#wrapper {
+	width: 840px;
+	height: 100%;
+	margin: 0 auto;
+}
+
+#sidebar {
+	float: left;
+	width: 240px;
+	height: 100%;
+	background: rgb(249,249,249);
+	border-right: 1px solid rgb(200,200,200);
+	box-shadow: inset 1px 0 0 #fff;
+	box-sizing: border-box;
+	padding: 15px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+#content {
+	float: right;
+	width: 600px;
+	height: 100%;
+	background: #fff;
+	padding-bottom: 60px;
+	box-sizing: border-box;
+}
+
+/* Sidebar */
+
+#set-name {
+	width: 210px;
+	height: 30px;
+	box-sizing: border-box;
+	margin-bottom: 15px;
+	padding: 9px;
+	border-radius: 4px;
+	background: rgb(242,242,242);
+	border: 1px solid #C7C7C7;
+	box-shadow: inset 0 0 0 1px rgb(250,250,250), 0 0px 2px rgb(240,240,240);
+	font-size: 13px;
+	line-height: 14px;
+	color: rgb(120,120,122);
+	text-shadow: 0 1px 0 #fff;
+	font-size: 12px;
+	line-height: 14px;
+}
+
+#set-name::input-placeholder, #set-name::-webkit-input-placeholder {
+	font-size: 12px;
+	line-height: 14px;
+	color: rgb(140,140,142);
+	text-shadow: 0 1px 0 #fff;
+}
+
+#set-name:focus::input-placeholder, #set-name:focus::-webkit-input-placeholder {
+	color: transparent;
+	text-shadow: none;
+}
+
+#set-name[readonly] {
+	color: rgb(153,153,155);
+}
+
+#sidebar h3.rooms, #sidebar h3.users {
+	text-transform: uppercase;
+	color: rgb(153,153,155);
+	font-size: 11px;
+	line-height: 11px;
+	font-weight: normal;
+	margin-bottom: 15px;
+}
+
+#rooms {
+	list-style: none;
+	margin-left: 15px;
+}
+
+#rooms .room:last-child {
+	margin-bottom: 15px;
+}
+
+#rooms .room.active span {
+	text-decoration: underline;
+}
+
+#rooms:hover .room.active span {
+	text-decoration: none;
+}
+
+#rooms:hover .room:hover span {
+	text-decoration: underline;
+	cursor: default;
+}
+
+#rooms .room {
+	width: 100%;
+	float: left;
+}
+
+#rooms .room span {
+	float: left;
+}
+
+#rooms .room .remove {
+	display: none;
+}
+
+#rooms .room:hover .remove {
+	display: block;
+	float: right;
+}
+
+#rooms .room .remove:hover {
+	cursor: default;
+}
+
+#add-room {
+	width: 100%;
+	font-size: 13px;
+    line-height: 18px;
+    font-family: "Helvetica Neue", sans-serif;
+    color: rgb(93,93,95);
+    text-shadow: 0 1px 0 #fff;
+    background: rgb(249,249,249);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+#add-room::input-placeholder, #add-room::-webkit-input-placeholder {
+	font-size: 13px;
+    line-height: 16px;
+    font-family: "Helvetica Neue", sans-serif;
+    color: rgb(93,93,95);
+    text-shadow: 0 1px 0 #fff;
+}
+
+#add-room:focus::input-placeholder, #add-room:focus::-webkit-input-placeholder {
+	color: transparent;
+	text-shadow: none;
+}
+
+#user-lists {
+	margin-left: 15px;
+}
+
+#user-lists .room {
+	list-style: none;
+}
+
+/* Content */
+
+#message-lists {
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+#message-lists .room {
+	list-style: none;
+	box-sizing: border-box;
+	padding: 8px 15px 7px 15px;
+}
+
+#message-lists .room li {
+	padding: 7px 0 8px 0;
+	width: 570px;
+}
+
+#message-lists .room li h4 {
+	font-size: 12px;
+	line-height: 21px;
+	width: 100%;
+	font-weight: normal;
+	color: rgb(153,153,155);
+}
+
+#message-lists .room li h4 .name {
+	display: inline;
+}
+
+#message-lists .room li h4 time {
+	display: none;
+}
+
+#message-lists .room li:hover h4 time {
+	display: inline;
+	font-style: italic;
+	float: right;
+}
+
+#message-lists .room li .message {
+	display: block;
+}
+
+#content div.new-message-box {
+	position: relative;
+	bottom: 0;
+	width: 600px;
+	height: 60px;
+	padding: 15px;
+	box-sizing: border-box;
+	background: rgb(242,242,242);
+	border-top: 1px solid rgb(200,200,200);
+}
+
+#new-message {
+	width: 570px;
+	height: 30px;
+	box-sizing: border-box;
+	padding: 9px;
+	border-radius: 4px;
+	background: #fff;
+	border: 1px solid #C7C7C7;
+	box-shadow: 0 1px 0 rgb(255,255,255), 0 0px 2px rgb(240,240,240);
+	font-size: 13px;
+	line-height: 14px;
+	color: rgb(113,113,115);
+	text-shadow: 0 1px 0 #fff;
+	font-size: 12px;
+	line-height: 14px;
+}
+
+#new-message::input-placeholder, #new-message::-webkit-input-placeholder {
+	font-size: 12px;
+	line-height: 14px;
+	color: rgb(153,153,155);
+	text-shadow: 0 1px 0 #fff;
+}
+
+#new-message:focus::input-placeholder, #new-message:focus::-webkit-input-placeholder {
+	color: transparent;
+	text-shadow: none;
+}
+
+/* Visibility */
+
+#user-lists .room, #message-lists .room {
+	display: none;
+}
+
+#user-lists .room.active, #message-lists .room.active {
+	display: block;
+}
