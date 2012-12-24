@@ -6,14 +6,6 @@ var io = require('socket.io').listen(server, { log: false });
 var mime = require('mime');
 
 
-// Settings
-
-io.configure(function () { 
-  	io.set("transports", ["xhr-polling"]); 
-  	io.set("polling duration", 10);
-});
-
-
 // HTTP Request
 
 function onRequest(request, response) {
@@ -276,6 +268,6 @@ messages.save = function (message, roomID) {
 // Start
 
 messages.check();
-var port = process.env.PORT || 9004; // process.env.PORT for Heroku, 9004 for luisgerhorst.de
+var port = 9004;
 server.listen(port);
-console.log("Chat has started.");
+console.log("Chat has started on port " + port + ".");
