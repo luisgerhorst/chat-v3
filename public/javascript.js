@@ -2,7 +2,7 @@ $(document).ready(function () {
 
 
 var userID = Math.round(Math.random() * 9999999999);
-var socket = io.connect('http://' + document.domain + '/');
+var socket = io.connect(window.location.hostname);
 
 var rooms = {};
 
