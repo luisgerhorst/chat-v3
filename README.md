@@ -1,3 +1,3 @@
-Version 0.2.2
+# Chat v2
 
-Chat v2
+View package.json for required node_modules and application version.
