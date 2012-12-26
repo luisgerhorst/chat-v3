@@ -4,7 +4,7 @@ var fs = require('fs');
 
 var io = require('socket.io').listen(server, { log: false });
 var mime = require('mime');
-var nano = require('nano')('http://localhost:5984');
+var cradle = require('cradle');
 
 
 // HTTP Request
@@ -195,140 +195,92 @@ function Room(roomID) {
 // messages
 
 var messages = {};
+	messages.DBName = 'chat-v2-messages';
+	messages.ready = true;
+	
+var couchDB;
 
-messages.db = false;
+messages.setup = function () {
 
-messages.doing = false;
-
-messages.check = function () {
-
-	// clean up the database we created previously
-	nano.db.destroy('chat-v2-messages', function() {
-	  
-	  	// create a new database
-	  	nano.db.create('chat-v2-messages', function() {
+	couchDB = new(cradle.Connection)();
+	messages.db = couchDB.database(messages.DBName);
+	//messages.db.destroy();
+	messages.db.exists(function (err, exists) {
 	    
-	    	// specify the database we are going to use
-	    	messages.db = nano.use('chat-v2-messages');
+	    if (err) {
+	      	console.log('error', err);
+	    }
 	    
-	    	messages.save("1. message is hello", "test");
-	    	//messages.save("2. message", "test");
+	    else if (exists) {
+	      	console.log('Messages database exists.');
+	    }
 	    
-	  	});
-	  	
+	    else {
+	      	console.log('Messages database does NOT exist ...');
+	      	messages.db.create();
+	      	console.log('Created database.');
+	    }
+	    
 	});
 
 }
 
 messages.read = function (roomID, callback) {
-
-	messages.doing = true;
 	
-	console.log("Reading messages of chat room " + roomID + " ...");
-	
-	messages.db.get(roomID, { revs_info: false }, function(err, body) {
-	  	
-	  	if (!err) console.log(body);
-	  	else console.log(err);
-	  	
-	  	if (typeof callback !== "undefined") callback();
-	  	
-	  	messages.doing = false;
-	  	
+	messages.db.get(roomID, function (err, doc) {
+		
+		if (typeof doc === "undefined") doc = { messages: {} };
+		
+		console.log("Read messages of chat room '" + roomID + "'.");
+	    callback(doc.messages);
+	    
 	});
 	
 }
 
 messages.save = function (message, roomID) {
-
-	messages.doing = true;
-
-	messages.db.get(roomID, { revs_info: false }, function(err, body) {
 	
-		console.log(body);
+	var waitMessagesDBReady = setInterval(checkMessagesDBReady, 1);
+	checkMessagesDBReady();
 	
-		if (typeof body === "undefined") messagesRoomCount = 0;
-		else messagesRoomCount = body.count;
+	function checkMessagesDBReady() {
+	
+		if (messages.ready) {
 		
-		console.log(messagesRoomCount);
-		
-		messages.db.insert({ count: messagesRoomCount+1 }, roomID, function(err, body, header) {
+			clearInterval(waitMessagesDBReady);
 			
-			if (err) console.log(err);
-			else console.log("insert body: " + JSON.stringify(body));
+			var time1 = new Date().getTime();
 			
-			var messageID = roomID + messagesRoomCount;
-			messages.db.insert({ message: message }, messageID, function(err, body, header) {
+			messages.ready = false;
+			
+			messages.db.get(roomID, function (err, doc) {
 				
-				if (err) console.log(err);
-				else {
+				if (typeof doc === "undefined") doc = { messages: {} };
+				
+				doc.messages[Object.keys(doc.messages).length] = message;
+			      
+				messages.db.save(roomID, { messages: doc.messages }, function (err, res) {
+				
+					messages.ready = true;
 					
-					console.log("insert body: " + JSON.stringify(body));
-					messages.read(messageID);
-					
-				}
-				
-				messages.doing = false;
-				
+					console.log("Saved message '" + JSON.stringify(message) + "' into '" + roomID + "'.");
+					var time3 = new Date().getTime() - time1;
+					console.log("Delay was " + time3 + "ms.");
+			      	
+			   	});
+			      
 			});
-			
-		});
 		
-	});
+		}
 	
-	/*messages.db.get(roomID, { revs_info: false }, function(err, body) {
-	  	
-	  	if (err) {
-	  		
-	  		messages.db.insert({ messagesNumber: 0 }, roomID, function(err, body, header) {
-	  		    if (err) console.log(err);
-	  		});
-	  		
-	  	}
-	  	
-	  	else {
-	  		
-	  		console.log(body);
-	  		
-	  		var messagesNumber = body.messagesNumber;
-	  		
-	  		messages.db.insert({ messagesNumber: message }, roomID, function(err, body, header) {
-	  		
-	  			if (err) {
-	  		        console.log('[messages.db.insert] ', err.message);
-	  		        return;
-	  		    }
-	  		    
-	  		    messagesNumber++;
-	  		    
-	  		    messages.db.insert({ numberOfMessages: messagesNumber }, roomID, function(err, body, header) {
-	  		    
-	  		    	if (err) {
-	  		            console.log('[messages.db.insert] ', err.message);
-	  		            return;
-	  		        }
-	  		        
-	  		        console.log('you have inserted it');
-	  		        console.log(body);
-	  		        
-	  		        messages.read(roomID, function (messages) {
-	  		        	console.log("read messages: " + messages);
-	  		        });
-	  		        
-	  		    });
-	  		    
-	  		});
-	  		
-	  	}
-	  	
-	});*/
+	}
 	
 }
 
 
 // Start
 
-messages.check();
+messages.setup();
 var port = 9004;
 server.listen(port);
 console.log("Chat has started on port " + port + ".");
