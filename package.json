@@ -2,8 +2,9 @@
   	"name": "chat-v2",
   	"version": "1.0.0",
  	"dependencies": {
-    	"socket.io": "0.9.11",
-    	"mime": "1.2.7"
+    	"socket.io": "0.9.x",
+    	"mime": "1.2.x",
+    	"nano": "3.3.x"
   	},
   	"engines": {
   	    "node": "0.8.x",

@@ -4,6 +4,7 @@ var fs = require('fs');
 
 var io = require('socket.io').listen(server, { log: false });
 var mime = require('mime');
+var nano = require('nano')('http://localhost:5984');
 
 
 // HTTP Request
@@ -195,68 +196,132 @@ function Room(roomID) {
 
 var messages = {};
 
-messages.file = __dirname + '/messages.json';
+messages.db = false;
+
+messages.doing = false;
 
 messages.check = function () {
 
-	fs.readFile(messages.file, function (err, data) {
-	
-		if (err) throw err;
-		
-		if (data == '') {
-		
-			fs.writeFile(messages.file, "{}", function (err) {
-				if (err) throw err;
-				console.log(messages.file + " was invalid, content was set to default.");
-			});
-		
-		}
-	
-		else console.log(messages.file + "'s data is valid");
-		
+	// clean up the database we created previously
+	nano.db.destroy('chat-v2-messages', function() {
+	  
+	  	// create a new database
+	  	nano.db.create('chat-v2-messages', function() {
+	    
+	    	// specify the database we are going to use
+	    	messages.db = nano.use('chat-v2-messages');
+	    
+	    	messages.save("1. message is hello", "test");
+	    	//messages.save("2. message", "test");
+	    
+	  	});
+	  	
 	});
 
 }
 
 messages.read = function (roomID, callback) {
+
+	messages.doing = true;
 	
 	console.log("Reading messages of chat room " + roomID + " ...");
 	
-	fs.readFile(messages.file, function (err, db) {
-	
-		if (err) throw err;
-		
-		db = JSON.parse(db);
-		
-		var messages = false;
-		if (db[roomID] != null) messages = db[roomID].messages;
-		
-		callback(messages);
-		
+	messages.db.get(roomID, { revs_info: false }, function(err, body) {
+	  	
+	  	if (!err) console.log(body);
+	  	else console.log(err);
+	  	
+	  	if (typeof callback !== "undefined") callback();
+	  	
+	  	messages.doing = false;
+	  	
 	});
 	
 }
 
 messages.save = function (message, roomID) {
+
+	messages.doing = true;
+
+	messages.db.get(roomID, { revs_info: false }, function(err, body) {
 	
-	fs.readFile(messages.file, function (err, db) {
+		console.log(body);
 	
-		if (err) throw err;
+		if (typeof body === "undefined") messagesRoomCount = 0;
+		else messagesRoomCount = body.count;
 		
-		db = JSON.parse(db);
-		if (db[roomID] == null) {
-			db[roomID] = {};
-			db[roomID].messages = {};
-		}
-			  	
-		db[roomID].messages[Object.keys(db[roomID].messages).length] = message;
-			  	
-		fs.writeFile(messages.file, JSON.stringify(db), function (err) {
-			if (err) throw err;
-			console.log("Saved message.");
+		console.log(messagesRoomCount);
+		
+		messages.db.insert({ count: messagesRoomCount+1 }, roomID, function(err, body, header) {
+			
+			if (err) console.log(err);
+			else console.log("insert body: " + JSON.stringify(body));
+			
+			var messageID = roomID + messagesRoomCount;
+			messages.db.insert({ message: message }, messageID, function(err, body, header) {
+				
+				if (err) console.log(err);
+				else {
+					
+					console.log("insert body: " + JSON.stringify(body));
+					messages.read(messageID);
+					
+				}
+				
+				messages.doing = false;
+				
+			});
+			
 		});
 		
 	});
+	
+	/*messages.db.get(roomID, { revs_info: false }, function(err, body) {
+	  	
+	  	if (err) {
+	  		
+	  		messages.db.insert({ messagesNumber: 0 }, roomID, function(err, body, header) {
+	  		    if (err) console.log(err);
+	  		});
+	  		
+	  	}
+	  	
+	  	else {
+	  		
+	  		console.log(body);
+	  		
+	  		var messagesNumber = body.messagesNumber;
+	  		
+	  		messages.db.insert({ messagesNumber: message }, roomID, function(err, body, header) {
+	  		
+	  			if (err) {
+	  		        console.log('[messages.db.insert] ', err.message);
+	  		        return;
+	  		    }
+	  		    
+	  		    messagesNumber++;
+	  		    
+	  		    messages.db.insert({ numberOfMessages: messagesNumber }, roomID, function(err, body, header) {
+	  		    
+	  		    	if (err) {
+	  		            console.log('[messages.db.insert] ', err.message);
+	  		            return;
+	  		        }
+	  		        
+	  		        console.log('you have inserted it');
+	  		        console.log(body);
+	  		        
+	  		        messages.read(roomID, function (messages) {
+	  		        	console.log("read messages: " + messages);
+	  		        });
+	  		        
+	  		    });
+	  		    
+	  		});
+	  		
+	  	}
+	  	
+	});*/
 	
 }
 
