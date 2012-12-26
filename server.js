@@ -196,7 +196,7 @@ function Room(roomID) {
 
 var messages = {};
 	messages.DBName = 'chat-v2-messages';
-	messages.ready = true;
+	messages.ready = {};
 	
 var couchDB;
 
@@ -204,7 +204,9 @@ messages.setup = function () {
 
 	couchDB = new(cradle.Connection)();
 	messages.db = couchDB.database(messages.DBName);
+	
 	//messages.db.destroy();
+	
 	messages.db.exists(function (err, exists) {
 	    
 	    if (err) {
@@ -240,39 +242,46 @@ messages.read = function (roomID, callback) {
 
 messages.save = function (message, roomID) {
 	
-	var waitMessagesDBReady = setInterval(checkMessagesDBReady, 1);
-	checkMessagesDBReady();
+	var wait = setInterval(check, 0);
+	check();
 	
-	function checkMessagesDBReady() {
+	function check() {
 	
-		if (messages.ready) {
-		
-			clearInterval(waitMessagesDBReady);
-			
-			var time1 = new Date().getTime();
-			
-			messages.ready = false;
-			
-			messages.db.get(roomID, function (err, doc) {
-				
-				if (typeof doc === "undefined") doc = { messages: {} };
-				
-				doc.messages[Object.keys(doc.messages).length] = message;
-			      
-				messages.db.save(roomID, { messages: doc.messages }, function (err, res) {
-				
-					messages.ready = true;
-					
-					console.log("Saved message '" + JSON.stringify(message) + "' into '" + roomID + "'.");
-					var time3 = new Date().getTime() - time1;
-					console.log("Delay was " + time3 + "ms.");
-			      	
-			   	});
-			      
-			});
-		
+		console.log("Check ...");
+	
+		if (messages.ready[roomID] || messages.ready[roomID] == null) {
+			console.log("Ready.");
+			clearInterval(wait);
+			save();
 		}
 	
+	}
+	
+	function save() {
+	
+		var startTime = new Date().getTime();
+		
+		messages.ready[roomID] = false;
+		
+		messages.db.get(roomID, function (err, doc) {
+			
+			if (typeof doc === "undefined") doc = { messages: {} };
+			
+			doc.messages[Object.keys(doc.messages).length] = message;
+		      
+			messages.db.save(roomID, { messages: doc.messages }, function (err, res) {
+			
+				messages.ready[roomID] = true;
+				
+				console.log("Saved message '" + JSON.stringify(message) + "' into '" + roomID + "'.");
+				
+				var delay = new Date().getTime() - startTime;
+				console.log("Delay was " + delay + "ms.");
+		      	
+		   	});
+		      
+		});
+		
 	}
 	
 }
