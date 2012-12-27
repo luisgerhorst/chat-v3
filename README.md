@@ -18,10 +18,10 @@
 
 Note: Line numbers may be different.
 
-**HTTTP and Socket.io port:** search for 'var port =', line 273
+**HTTTP and Socket.io port:** search for "var port =", line 273
 
-**CouchDB host:** search for 'couchDB.host = ', line 200
+**CouchDB host:** search for "couchDB.host = ", line 200
 
-**CouchDB port:** search for 'couchDB.port = ', line 201
+**CouchDB port:** search for "couchDB.port = ", line 201
 
-**CouchDB database for messages:** search for 'messages.DBName = ', line 203
+**CouchDB database for messages:** search for "messages.DBName = ", line 203
