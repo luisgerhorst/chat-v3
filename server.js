@@ -7,6 +7,13 @@ var mime = require('mime');
 var cradle = require('cradle');
 
 
+// Global vars
+
+var rooms = {};
+var messages = {};
+var couchDB = {};
+
+
 // HTTP Request
 
 function onRequest(request, response) {
@@ -72,8 +79,6 @@ io.sockets.on('connection', function (socket) {
 	
 	socket.on('userSet', function (data) {
 	
-		//console.log("Received user update of " + data.user.name + ".");
-		
 		for (var roomID in data.rooms) {
 			if (rooms[roomID] != null) rooms[roomID].userSet(socket, data.user);
 		}
@@ -101,8 +106,6 @@ io.sockets.on('connection', function (socket) {
 });
 
 
-
-var rooms = {};
 
 // Room
 
@@ -194,16 +197,19 @@ function Room(roomID) {
 
 // messages
 
-var messages = {};
-	messages.DBName = 'chat-v2-messages';
-	messages.ready = {};
-	
-var couchDB;
+couchDB.host = 'http://localhost'; // Hostname of your CouchDB Server
+couchDB.port = 5984; // httpd Port of your CouchDB Server
+
+messages.DBName = 'chat-v2-messages'; // Name of the database where the messages should be saved
 
 messages.setup = function () {
 
-	couchDB = new(cradle.Connection)();
-	messages.db = couchDB.database(messages.DBName);
+	couchDB.connection = new(cradle.Connection)(couchDB.host, couchDB.port, {
+	    cache: true,
+	    raw: false
+	});
+	
+	messages.db = couchDB.connection.database(messages.DBName);
 	
 	//messages.db.destroy();
 	
@@ -241,48 +247,22 @@ messages.read = function (roomID, callback) {
 }
 
 messages.save = function (message, roomID) {
+
+	var startTime = new Date().getTime();
 	
-	var wait = setInterval(check, 0);
-	check();
-	
-	function check() {
-	
-		console.log("Check ...");
-	
-		if (messages.ready[roomID] || messages.ready[roomID] == null) {
-			console.log("Ready.");
-			clearInterval(wait);
-			save();
-		}
-	
-	}
-	
-	function save() {
-	
-		var startTime = new Date().getTime();
+	messages.db.get(roomID, function (err, doc) {
 		
-		messages.ready[roomID] = false;
+		if (typeof doc === "undefined") doc = { messages: {} };
+		doc.messages[Object.keys(doc.messages).length] = message;
+	      
+		messages.db.save(roomID, { messages: doc.messages }, function (err, res) {
 		
-		messages.db.get(roomID, function (err, doc) {
-			
-			if (typeof doc === "undefined") doc = { messages: {} };
-			
-			doc.messages[Object.keys(doc.messages).length] = message;
-		      
-			messages.db.save(roomID, { messages: doc.messages }, function (err, res) {
-			
-				messages.ready[roomID] = true;
-				
-				console.log("Saved message '" + JSON.stringify(message) + "' into '" + roomID + "'.");
-				
-				var delay = new Date().getTime() - startTime;
-				console.log("Delay was " + delay + "ms.");
-		      	
-		   	});
-		      
-		});
-		
-	}
+			var delay = new Date().getTime() - startTime;
+			console.log("Saved message '" + message.message + "' into '" + roomID + "' with a delay of " + delay + "ms.");
+	      	
+	   	});
+	      
+	});
 	
 }
 
