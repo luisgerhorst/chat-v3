@@ -270,6 +270,6 @@ messages.save = function (message, roomID) {
 // Start
 
 messages.setup();
-var port = 9004;
+var port = 80;
 server.listen(port);
 console.log("Chat has started on port " + port + ".");
