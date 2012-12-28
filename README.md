@@ -12,13 +12,15 @@
 
 5. Run "npm install" to download all required node_modules defined in package.json
 
-6. Run server.js with node by typing "node server.js", or if you want to run it as deamon use "nohup node server.js &". That's it!
+6. Change the HTTP server's port to 80 by searching for "var port = " (should be at line 273 in server.js) and changing 9004 to 80.
+
+7. Run server.js with node by typing "node server.js", or if you want to run it as deamon use "nohup node server.js &". That's it!
 
 ## Settings
 
 Note: Line numbers may be different.
 
-**HTTTP and Socket.io port:** search for "var port =", line 273
+**HTTP and Socket.io port:** search for "var port = ", line 273
 
 **CouchDB host:** search for "couchDB.host = ", line 200
 
