@@ -6,7 +6,7 @@
 
 2. Install **npm** with the shell command:
 
-	curl https://npmjs.org/install.sh | sh
+    curl https://npmjs.org/install.sh | sh
 
 via [npm README](https://npmjs.org/doc/README.html#Fancy-Install-Unix)
 
