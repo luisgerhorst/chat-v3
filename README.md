@@ -4,11 +4,7 @@
 
 1. [Install](http://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager) **Node.js**.
 
-2. Install **npm** with the shell command:
-
-    curl https://npmjs.org/install.sh | sh
-
-via [npm README](https://npmjs.org/doc/README.html#Fancy-Install-Unix)
+2. Install **npm** with the shell command "curl https://npmjs.org/install.sh | sh" (via [npm README](https://npmjs.org/doc/README.html#Fancy-Install-Unix))
 
 3. [Install](http://wiki.apache.org/couchdb/Installation) **CouchDB**.
 
