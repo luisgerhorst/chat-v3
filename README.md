@@ -12,7 +12,7 @@
 
 5. Run `npm install` to download all required node_modules defined in package.json
 
-6. Change the HTTP server's port to 80 by searching in server.js for `var port =` (should be at line 273) and changing 9004 to 80.
+6. Change the HTTP server's port to 80 by searching in server.js for `var port =` (should be at line 273) and changing `9004` to `80`.
 
 7. Run server.js with node by typing `node server.js`, or if you want to run it as deamon use `nohup node server.js &`. That's it!
 
