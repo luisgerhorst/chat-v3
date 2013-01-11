@@ -1,7 +1,7 @@
 $(document).ready(function () {
 
 
-var userID = Math.round(Math.random() * 9999999999);
+var userID = Math.round(Math.random() * Math.pow(2,32)); // Random number between 0 and 2^32
 var socket = io.connect(window.location.hostname);
 
 var rooms = {};
