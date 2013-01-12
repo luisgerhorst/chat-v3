@@ -9,7 +9,10 @@ var rooms = {};
 
 // Start App:
 
+
 getCookie();
+
+console.log("System Info:\nUser ID " + userID + "\nSocket host " + window.location.hostname);
 
 // Reapeating:
 
