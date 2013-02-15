@@ -35,17 +35,23 @@ function route(path, response) {
 			
 		if (exists) {
 			
-			fs.stat(fsPath, function (err, stats) {
+			fs.stat(fsPath, function (error, stats) {
 				
-				if (err) throw err;
+				if (error) console.log('Error while fs.stat', error);
 				if (stats.isDirectory()) fsPath += "/index.html";
 				
-				fs.readFile(fsPath, function (err, data) {
+				fs.readFile(fsPath, function (error, data) {
 
-					if (err) throw err;
-
-					response.writeHead(200, {"Content-Type": mime.lookup(fsPath) });
-					response.end(data);
+					if (error) {
+						console.log('Error while fs.readFile', error);
+						response.writeHead(200, { "Content-Type": 'text/plain' });
+						response.end('No index.html found.');
+					}
+					
+					else {
+						response.writeHead(200, {"Content-Type": mime.lookup(fsPath) });
+						response.end(data);
+					}
 
 				});
 				
@@ -55,8 +61,8 @@ function route(path, response) {
 			
 		else {
 		
-			response.writeHead(200, {"Content-Type": "text/plain"});
-			response.end("404, file doesn't exist.");
+			response.writeHead(200, { "Content-Type": 'text/plain' });
+			response.end('404 Not Found');
 			
 		}
 			
@@ -197,23 +203,51 @@ function Room(roomID) {
 
 // messages
 
-couchDB.host = 'http://localhost'; // Hostname of your CouchDB Server
-couchDB.port = 5984; // httpd Port of your CouchDB Server
+function MessagesDB(host, port, name) {
 
-messages.DBName = 'chat-v2-messages'; // Name of the database where the messages should be saved
-
-messages.setup = function () {
-
-	couchDB.connection = new(cradle.Connection)(couchDB.host, couchDB.port, {
+	var db = new cradle.Connection(host, port, {
 	    cache: true,
 	    raw: false
-	});
+	}).database(name);
 	
-	messages.db = couchDB.connection.database(messages.DBName);
+	// Methods
 	
-	//messages.db.destroy();
+	this.read = function (roomID, callback) {
+		
+		db.get(roomID, function (err, doc) {
+			
+			if (typeof doc === "undefined") doc = { messages: {} };
+			
+			console.log("Read messages of chat room '" + roomID + "'.");
+		    callback(doc.messages);
+		    
+		});
+		
+	}
 	
-	messages.db.exists(function (err, exists) {
+	this.save = function (message, roomID) {
+	
+		var startTime = new Date().getTime();
+		
+		db.get(roomID, function (err, doc) {
+			
+			if (typeof doc === "undefined") doc = { messages: {} };
+			doc.messages[Object.keys(doc.messages).length] = message;
+		      
+			db.save(roomID, { messages: doc.messages }, function (err, res) {
+			
+				var delay = new Date().getTime() - startTime;
+				console.log("Saved message '" + message.message + "' into '" + roomID + "' with a delay of " + delay + "ms.");
+		      	
+		   	});
+		      
+		});
+		
+	}
+	
+	// Actions
+	
+	db.exists(function (err, exists) {
 	    
 	    if (err) {
 	      	console.log('error', err);
@@ -225,7 +259,7 @@ messages.setup = function () {
 	    
 	    else {
 	      	console.log('Messages database does NOT exist ...');
-	      	messages.db.create();
+	      	db.create();
 	      	console.log('Created database.');
 	    }
 	    
@@ -233,43 +267,9 @@ messages.setup = function () {
 
 }
 
-messages.read = function (roomID, callback) {
-	
-	messages.db.get(roomID, function (err, doc) {
-		
-		if (typeof doc === "undefined") doc = { messages: {} };
-		
-		console.log("Read messages of chat room '" + roomID + "'.");
-	    callback(doc.messages);
-	    
-	});
-	
-}
-
-messages.save = function (message, roomID) {
-
-	var startTime = new Date().getTime();
-	
-	messages.db.get(roomID, function (err, doc) {
-		
-		if (typeof doc === "undefined") doc = { messages: {} };
-		doc.messages[Object.keys(doc.messages).length] = message;
-	      
-		messages.db.save(roomID, { messages: doc.messages }, function (err, res) {
-		
-			var delay = new Date().getTime() - startTime;
-			console.log("Saved message '" + message.message + "' into '" + roomID + "' with a delay of " + delay + "ms.");
-	      	
-	   	});
-	      
-	});
-	
-}
-
-
 // Start
 
-messages.setup();
+var messages = new MessagesDB('http://localhost', 5984, 'chat-v2-messages');
 var port = 9004;
 server.listen(port);
 console.log("Chat has started on port " + port + ".");

@@ -1,0 +1,1 @@
+var socket, userID, rooms, time, user, cookie; // Global vars, are filled with values in start.js
