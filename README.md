@@ -22,8 +22,8 @@ Note: Line numbers may be different.
 
 **HTTP and Socket.io port:** search for `var port =`, line 273
 
-**CouchDB host:** search for `couchDB.host =`, line 200
+**CouchDB host:** search for `new MessagesDB(`, first parameter, default `http://localhost`, line 272
 
-**CouchDB port:** search for `couchDB.port =`, line 201
+**CouchDB port:** search for `new MessagesDB(`'s second parameter, default `5984`, line 272
 
-**CouchDB database for messages:** search for `messages.DBName =`, line 203
+**CouchDB database for messages:** search for `new MessagesDB(`'s third parameter, default `chat-v2-messages`, line 272
