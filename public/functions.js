@@ -12,10 +12,9 @@ function setEventHandlers() {
 			if (containsNoSpecialChars(roomID) && roomDoesNotAlreadyExist(roomID)) { // if string does not contain spaces/special characters
 
 				var room = new Room(roomID);
-					room.activate();
+				room.activate();
 				rooms[roomID] = room;
 				cookie.set();
-				socket.emit('socketJoinRoom', roomID);
 				user.send();
 				$("#add-room").blur().val("");
 				$('#getting-started').remove();
@@ -93,13 +92,14 @@ function setEventHandlers() {
 				}
 			});
 
-			this.message = {};
-			this.message.name = encodeHTML($("#set-name").val());
-			this.message.userID = userID;
-			this.message.time = ISODate();
-			this.message.message = linkURLs(encodeHTML($("#new-message").val()));
+			this.message = new (function () {
+				this.name = encodeHTML($("#set-name").val());
+				this.userID = userID;
+				this.time = ISODate();
+				this.message = linkURLs(encodeHTML($("#new-message").val()));
+			})();
 
-			console.log("Created new MessageData.");
+			console.log("Created new message Data.");
 
 			// functions:
 
@@ -121,8 +121,12 @@ function setEventHandlers() {
 		// Actions
 
 		$("#new-message").keyup(function (event) {
-			if (event && event.keyCode == 13 && encodeHTML($("#set-name").val()) && $('#rooms .room').hasClass('active')) send();
+			if (event && event.keyCode == 13 && encodeHTML($("#set-name").val()) && encodeHTML($("#new-message").val()) && $('#rooms .room').hasClass('active')) send();
 		}); // new message
+		
+		$("div.new-message-box button").click(function () {
+			if (encodeHTML($("#set-name").val()) && encodeHTML($("#new-message").val()) && $('#rooms .room').hasClass('active')) send();
+		});
 
 	})();
 

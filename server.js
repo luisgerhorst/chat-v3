@@ -9,9 +9,7 @@ var cradle = require('cradle');
 
 // Global vars
 
-var rooms = {};
-var messages = {};
-var couchDB = {};
+var rooms = {}, messagesDB;
 
 
 // HTTP Request
@@ -20,26 +18,17 @@ function onRequest(request, response) {
 	
 	var path = url.parse(request.url).pathname;
 
-	route(path, response);
-
-}
-
-
-// HTTP Router
-
-function route(path, response) {
-
 	var fsPath = __dirname + "/public/" + path;
-
+	
 	fs.exists(fsPath, function (exists) {
-			
+
 		if (exists) {
-			
+
 			fs.stat(fsPath, function (error, stats) {
-				
+
 				if (error) console.log('Error while fs.stat', error);
 				if (stats.isDirectory()) fsPath += "/index.html";
-				
+
 				fs.readFile(fsPath, function (error, data) {
 
 					if (error) {
@@ -47,27 +36,27 @@ function route(path, response) {
 						response.writeHead(200, { "Content-Type": 'text/plain' });
 						response.end('No index.html found.');
 					}
-					
+
 					else {
 						response.writeHead(200, {"Content-Type": mime.lookup(fsPath) });
 						response.end(data);
 					}
 
 				});
-				
+
 			});
-			
+
 		}
-			
+
 		else {
-		
+
 			response.writeHead(200, { "Content-Type": 'text/plain' });
 			response.end('404 Not Found');
-			
+
 		}
-			
-  	});
-	
+
+	});
+
 }
 
 
@@ -79,29 +68,29 @@ io.sockets.on('connection', function (socket) {
 		
 		io.sockets.in(data.roomID).emit('message', data);
 		
-		messages.save(data.message, data.roomID);
+		messagesDB.save(data.message, data.roomID);
 		
 	});
 	
-	socket.on('userSet', function (data) {
+	socket.on('user', function (data) {
 	
 		for (var roomID in data.rooms) {
-			if (rooms[roomID] != null) rooms[roomID].userSet(socket, data.user);
+			if (rooms[roomID] != null) rooms[roomID].user(socket, data.user);
 		}
  
 	});
 	
-	socket.on('socketJoinRoom', function (roomID) {
+	socket.on('joinRoom', function (roomID) {
 	
 		console.log("Socket joining " + roomID + " ...");
 		
 		if (rooms[roomID] == null) rooms[roomID] = new Room(roomID);
 		
-		rooms[roomID].socketJoin(socket);
+		rooms[roomID].join(socket);
 		
 	});
 	
-	socket.on('socketLeaveRoom', function (roomID) {
+	socket.on('leaveRoom', function (roomID) {
 		
 		socket.leave(roomID);
 		
@@ -117,33 +106,37 @@ io.sockets.on('connection', function (socket) {
 
 function Room(roomID) {
 
-	var lastRemove = new Date().getTime();
+	var lastUserRemove = new Date().getTime();
 	var users = {};
 	
-	this.socketJoin = function (socket) {
+	this.join = function (socket) {
 	
 		// Join room
 		socket.join(roomID);
 		
-		// Send users to socket
+		// Send existing users to socket
 		var data = {};
 			data.roomID = roomID;
 			data.users = users;
 		socket.emit('users', data);
 		
 		// Send archieved messages to socket
-		messages.read(roomID, function (messages) {
+		messagesDB.read(roomID, function (messages) {
 		
-			if (messages != false) {
+			if (messages !== []) {
+				
+				console.log('Read messages from database.');
 			
-				var items = Object.keys(messages).length;
-				for (var number in messages) {
-					if (parseInt(number) < items - 100) delete messages[number];
+				var length = messages.length;
+				for (var i = 0; i < length; i++) {
+					if (i < length - 100) messages.splice(i, 1);
 				}
 					
-				var data = {};
-					data.roomID = roomID;
-					data.messages = messages;
+				var data = {
+					roomID: roomID,
+					messages: messages
+				};
+
 				socket.emit('messages', data);
 				
 				console.log("Messages for " + roomID + " found and sent to client.");
@@ -158,19 +151,22 @@ function Room(roomID) {
 		
 	}
 	
-	this.userSet = function (socket, user) {
+	this.user = function (socket, user) {
 
 		// Detect if user is going to be changed
 		var changed = false;
-		if (users[user.userID] == null) changed = true;
-		else if (users[user.userID].name != user.name) changed = true;
+		(function () {
+			var oldUser = users[user.userID];
+			if (oldUser == null) changed = true;
+			else if (oldUser.name != user.name) changed = true;
+		})();
 
 		// Add/Update the user
 		user.unixTime = new Date().getTime();
 		users[user.userID] = user;
 
 		// Remove invalid users
-		if (new Date().getTime() - lastRemove >= 5*1000) {
+		if (new Date().getTime() - lastUserRemove >= 5*1000) {
 
 			for (var userID in users) {
 				if (new Date().getTime() - users[userID].unixTime >= 10*1000) {
@@ -179,7 +175,7 @@ function Room(roomID) {
 				}
 			}
 		
-			lastRemove = new Date().getTime();
+			lastUserRemove = new Date().getTime();
 			
 		}
 	
@@ -214,9 +210,11 @@ function MessagesDB(host, port, name) {
 	
 	this.read = function (roomID, callback) {
 		
-		db.get(roomID, function (err, doc) {
+		db.get(roomID, function (error, doc) {
 			
-			if (typeof doc === "undefined") doc = { messages: {} };
+			if (error) console.log('Error while getting document ' + roomID + ' from database.', error);
+			
+			if (typeof doc === "undefined") doc = { messages: [] };
 			
 			console.log("Read messages of chat room '" + roomID + "'.");
 		    callback(doc.messages);
@@ -226,20 +224,22 @@ function MessagesDB(host, port, name) {
 	}
 	
 	this.save = function (message, roomID) {
-	
+		
 		var startTime = new Date().getTime();
 		
-		db.get(roomID, function (err, doc) {
+		db.get(roomID, function (error, doc) {
 			
-			if (typeof doc === "undefined") doc = { messages: {} };
-			doc.messages[Object.keys(doc.messages).length] = message;
+			if (error) console.log('Error while getting document ' + roomID + ' from database.', error);
+			
+			if (typeof doc === "undefined") doc = { messages: [] };
+			doc.messages.push(message);
 		      
 			db.save(roomID, { messages: doc.messages }, function (err, res) {
 			
 				var delay = new Date().getTime() - startTime;
 				console.log("Saved message '" + message.message + "' into '" + roomID + "' with a delay of " + delay + "ms.");
-		      	
-		   	});
+
+			});
 		      
 		});
 		
@@ -250,17 +250,17 @@ function MessagesDB(host, port, name) {
 	db.exists(function (err, exists) {
 	    
 	    if (err) {
-	      	console.log('error', err);
+			console.log('error', err);
 	    }
 	    
 	    else if (exists) {
-	      	console.log('Messages database exists.');
+			console.log('Messages database exists.');
 	    }
 	    
 	    else {
-	      	console.log('Messages database does NOT exist ...');
-	      	db.create();
-	      	console.log('Created database.');
+			console.log('Messages database does NOT exist ...');
+			db.create();
+			console.log('Created database.');
 	    }
 	    
 	});
@@ -269,7 +269,10 @@ function MessagesDB(host, port, name) {
 
 // Start
 
-var messages = new MessagesDB('http://localhost', 5984, 'chat-v2-messages');
-var port = 9004;
-server.listen(port);
-console.log("Chat has started on port " + port + ".");
+messagesDB = new MessagesDB('http://localhost', 5984, 'chat-v2-messages');
+
+(function () {
+	var port = 9004;
+	server.listen(port);
+	console.log("Chat has started on port " + port + ".");
+})();

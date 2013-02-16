@@ -42,7 +42,7 @@ socket.on('message', function (data) {
 
 	var entry = createMessageEntry(message.userID, message.message, message.name, message.time);
 
-	$("#message-lists-roomID-"+roomID).append(entry);
+	$("#message-lists-roomID-" + roomID).append(entry);
 
 	time.set();
 
@@ -60,8 +60,9 @@ socket.on('messages', function (data) {
 
 	var html='';
 
-	for (var number in messages) {
-		var message = messages[number];
+	var length = messages.length;
+	for (var i = 0; i < length; i++) {
+		var message = messages[i];
 		html += createMessageEntry(message.userID, message.message, message.name, message.time);
 	}
 

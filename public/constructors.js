@@ -54,7 +54,7 @@ function User() {
 	// Methods
 	
 	this.send = function () {
-		socket.emit('userSet', new Data());
+		socket.emit('user', new Data());
 	}
 
 	// Actions
@@ -123,7 +123,6 @@ function Cookie() {
 			if (data.rooms[roomID] != null) {
 				rooms[roomID] = new Room(roomID);
 				if (data.rooms[roomID] == "active") rooms[roomID].activate();
-				socket.emit('socketJoinRoom', roomID);
 			}
 		}
 		
@@ -142,22 +141,22 @@ function Cookie() {
 function Room (roomID) {
 
 	var remove = function () {
-		
-		var wasActive = $('#rooms-roomID-'+roomID).hasClass('active');
-				
-		$('#rooms-roomID-'+roomID).remove();
-		$('#user-lists-roomID-'+roomID).remove();
-		$('#message-lists-roomID-'+roomID).remove();
-		
+
+		var wasActive = $('#rooms-roomID-' + roomID).hasClass('active');
+
+		$('#rooms-roomID-' + roomID).remove();
+		$('#user-lists-roomID-' + roomID).remove();
+		$('#message-lists-roomID-' + roomID).remove();
+
 		if (wasActive) {
 			$('#rooms .room').first().addClass("active");
 			$('#user-lists .room').first().addClass("active");
 			$('#message-lists .room').first().addClass("active");
 		}
-		
+
 		cookie.set();
 		
-		socket.emit('socketLeaveRoom', roomID);
+		socket.emit('leaveRoom', roomID);
 		
 	}
 	
@@ -168,13 +167,13 @@ function Room (roomID) {
 		console.log("Making " + roomID + " active.");
 	
 		$('#rooms .room').removeClass("active");
-		$('#rooms-roomID-'+roomID).addClass("active");
+		$('#rooms-roomID-' + roomID).addClass("active");
 		
 		$('#user-lists .room').removeClass("active");
-		$('#user-lists-roomID-'+roomID).addClass("active");
+		$('#user-lists-roomID-' + roomID).addClass("active");
 		
 		$('#message-lists .room').removeClass("active");
-		$('#message-lists-roomID-'+roomID).addClass("active");
+		$('#message-lists-roomID-' + roomID).addClass("active");
 		
 		cookie.set();
 		
@@ -186,7 +185,7 @@ function Room (roomID) {
 		
 		console.log('this.showUsers() of "' + roomID + '" called.');
 		$('#user-lists .room').removeClass("active");
-		$('#user-lists-roomID-'+roomID).addClass("active");
+		$('#user-lists-roomID-' + roomID).addClass("active");
 		
 	}
 	
@@ -196,9 +195,11 @@ function Room (roomID) {
 	$('#user-lists').append('<ul id="user-lists-roomID-' + roomID + '" class="room"></ul>');
 	$('#message-lists').append('<ol id="message-lists-roomID-' + roomID + '" class="room"></ol>');
 	
-	$('#rooms-roomID-'+roomID+' .remove').click(remove); // remove chat
-	$('#rooms-roomID-'+roomID).click(this.activate); // on element click set active
-	$('#rooms-roomID-'+roomID).mouseover(this.showUsers); // mouse over
+	$('#rooms-roomID-' + roomID + ' .remove').click(remove); // remove chat
+	$('#rooms-roomID-' + roomID).click(this.activate); // on element click set active
+	$('#rooms-roomID-' + roomID).mouseover(this.showUsers); // mouse over
+	
+	socket.emit('joinRoom', roomID);
 	
 	cookie.set();
 	

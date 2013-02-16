@@ -5,8 +5,7 @@
  	"dependencies": {
     	"socket.io": ">= 0.9.0",
     	"cradle": ">= 0.6.0",
-    	"mime": ">= 1.2.0",
-    	"express": "3.x.x"
+    	"mime": ">= 1.2.0"
   	},
   	"engines": {
   	    "node": ">= 0.8.0",
