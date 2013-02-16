@@ -206,6 +206,56 @@ function MessagesDB(host, port, name) {
 	    raw: false
 	}).database(name);
 	
+	var convertObjectsToArrays = function () {
+		
+		console.log('Will now convert messages objects to arrays ...');
+		
+		db.save('_design/rooms', {
+			
+			noArray: {
+				map: function (doc) {
+					if (Object.prototype.toString.call(doc.messages) !== '[object Array]') emit(doc._id, doc);
+				}
+			}
+			
+		}, function (err, res) {
+			
+			if (err) console.log('Error while saving view noArray', err);
+			
+			db.view('rooms/noArray', function (err, res) {
+				
+				if (err) console.log('Error while loading view noArray', err);
+				
+				console.log('Received view noArray: ', res);
+				
+				var length = res.length;
+				for (var i = 0; i < length; i++) {
+					
+					var row = res[i].value;
+					console.log('Row: ', row);
+					
+					var array = [];
+					var object = row.messages;
+					for (var k in object) array.push(object[k]);
+					
+					console.log('Converted row.messages to array: ', array);
+					
+					db.save(row._id, { messages: array }, dbSaveOnRes);
+					
+				}
+				
+				function dbSaveOnRes(err, res) {
+					if (err) console.log('Error while saving row "' + row._id + '".');
+				}
+				
+				console.log('Succesfully converted all messages objects to arrays.');
+				
+			});
+			
+		});
+		
+	}
+	
 	// Methods
 	
 	this.read = function (roomID, callback) {
@@ -245,8 +295,6 @@ function MessagesDB(host, port, name) {
 		
 	}
 	
-	// Actions
-	
 	db.exists(function (err, exists) {
 	    
 	    if (err) {
@@ -255,6 +303,7 @@ function MessagesDB(host, port, name) {
 	    
 	    else if (exists) {
 			console.log('Messages database exists.');
+			convertObjectsToArrays(); /* Because of earlier, the messages were saved as properties of the messages object of the documents, since 16.2.2013 messages is an array. This function converts the objects to arrays. */
 	    }
 	    
 	    else {
