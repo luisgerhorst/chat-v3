@@ -182,9 +182,10 @@ function Room(roomID) {
 		// Emit update if something has been changed
 		if (changed) {
 		
-			var data = {};
-				data.roomID = roomID;
-				data.users = users;
+			var data = {
+				roomID: roomID,
+				users: users,
+			};
 			io.sockets.in(roomID).emit('users', data);
 			
 			console.log("Sent changes in " + roomID + " to all members.");
