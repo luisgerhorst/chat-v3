@@ -319,7 +319,7 @@ function MessagesDB(host, port, name) {
 
 // Start
 
-messagesDB = new MessagesDB('http://localhost', 5984, 'chat-v2-messages');
+messagesDB = new MessagesDB('http://localhost', 5984, 'chat-v2');
 
 (function () {
 	var port = 9004;

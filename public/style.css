@@ -1,13 +1,12 @@
 /* Allgemein */
 
 body {
-    background: #fff;
+    background: #2d5072;
     font-size: 13px;
     line-height: 18px;
     font-family: "Lucida Grande", "Helvetica Neue", sans-serif;
     color: rgb(93,93,95);
     text-shadow: 0 1px 0 #fff;
-    background: #7C959F;
 }
 
 * {
@@ -46,16 +45,12 @@ input:focus {
 	width: 240px;
 	height: 100%;
 	background: rgb(249,249,249);
-	border-right: 1px solid rgb(200,200,200);
-	box-shadow: inset 1px 0 0 #fff;
-	box-sizing: border-box;
-	padding: 0px;
+	box-shadow: inset 1px 0 0 #fff, inset -1px 0 rgb(200,200,200);
 	overflow-x: hidden;
 	overflow-y: scroll;
 }
 
 #content {
-	z-index: 100;
 	float: right;
 	width: 600px;
 	height: 100%;
@@ -68,11 +63,10 @@ input:focus {
 
 #set-name {
 	margin: 15px;
-	width: 210px;
-	height: 30px;
-	box-sizing: border-box;
-	margin-bottom: 15px;
 	padding: 9px;
+	width: 192px; /* 240px - 2*9px padding - 2*15px margin */
+	height: 12px;
+	margin-bottom: 15px;
 	border-radius: 4px;
 	background: rgb(242,242,242);
 	border: 1px solid #C7C7C7;
@@ -82,7 +76,7 @@ input:focus {
 	color: rgb(120,120,122);
 	text-shadow: 0 1px 0 #fff;
 	font-size: 12px;
-	line-height: 14px;
+	line-height: 12px;
 }
 
 #set-name::input-placeholder, #set-name::-webkit-input-placeholder {
@@ -107,7 +101,7 @@ input:focus {
 	font-size: 11px;
 	line-height: 11px;
 	font-weight: normal;
-	margin: 15px;
+	margin: 0 15px 15px 15px;
 }
 
 #rooms {
@@ -120,7 +114,6 @@ input:focus {
 }
 
 #rooms .room.active {
-	z-index: 110;
 	color: rgba(250,250,250,0.92);
 	text-shadow: 0 -1px rgb(58,138,223);
 	text-decoration: none;
@@ -142,8 +135,7 @@ input:focus {
 #rooms .room {
 	padding: 0 15px 0 15px;
 	line-height: 23px;
-	box-sizing: border-box;
-	width: 100%;
+	width: 210px; /* 240px - 2 * (15px padding) */
 	float: left;
 }
 
@@ -175,7 +167,7 @@ input:focus {
     font-family: "Helvetica Neue", sans-serif;
     color: rgb(93,93,95);
     text-shadow: 0 1px 0 #fff;
-    background: rgb(249,249,249);
+    background: transparent;
     margin-bottom: 15px;
     text-align: center;
 }
@@ -211,7 +203,6 @@ input:focus {
 
 #message-lists ol.room {
 	list-style: none;
-	box-sizing: border-box;
 	padding: 8px 15px 7px 15px;
 }
 
@@ -258,20 +249,19 @@ input:focus {
 #content div.new-message-box {
 	position: relative;
 	bottom: 0;
-	width: 600px;
-	height: 60px;
+	width: 570px; /* 600px - 2*15px padding */
+	height: 29px; /* 60px - 2*15px padding - 1px border-top */
 	padding: 15px;
-	box-sizing: border-box;
 	background: rgb(242,242,242);
 	border-top: 1px solid rgb(200,200,200);
 }
 
 #new-message {
-	width: 508px;
-	height: 30px;
-	box-sizing: border-box;
-	padding: 9px;
-	margin: 0 10px 0 0;
+	float: left;
+	width: 488px; /* 570px - 62px (button + margin) - 2*9px padding - 2*1px border */
+	height: 12px;
+	padding: 8px 9px 8px 9px;
+	margin: 0 15px 0 0;
 	border-radius: 4px;
 	background: #fff;
 	border: 1px solid #C7C7C7;
@@ -279,7 +269,7 @@ input:focus {
 	color: rgb(113,113,115);
 	text-shadow: 0 1px 0 #fff;
 	font-size: 12px;
-	line-height: 14px;
+	line-height: 12px;
 }
 
 #new-message::input-placeholder, #new-message::-webkit-input-placeholder {
@@ -295,10 +285,10 @@ input:focus {
 }
 
 #content div.new-message-box button {
-	width: auto;
+	width: 47px;
+	float: right;
 	height: 30px;
-	padding: 8px;
-	box-sizing: border-box;
+	padding: 8px 9px 8px 9px;
 	font-size: 12px;
 	line-height: 12px;
 	font-family: Helvetica, sans-serif;
