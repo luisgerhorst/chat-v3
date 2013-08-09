@@ -1,6 +1,10 @@
-# Chat v2
+# Features
 
-## Install
+- create chat rooms
+- single page webapp
+- node.js HTTP server
+
+# Install
 
 1. [Install](http://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager) **Node.js**.
 
@@ -16,7 +20,7 @@
 
 7. Run server.js with node by typing `node server.js`, or if you want to run it as deamon use `nohup node server.js &`. That's it!
 
-## Settings
+# Settings
 
 Note: Line numbers may be different.
 
