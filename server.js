@@ -319,10 +319,8 @@ function MessagesDB(host, port, name) {
 
 // Start
 
-messagesDB = new MessagesDB('http://localhost', 5984, 'chat-v2');
+messagesDB = new MessagesDB('http://localhost', 5984, 'chat_v3_messages');
 
-(function () {
-	var port = 9004;
-	server.listen(port);
-	console.log("Chat has started on port " + port + ".");
-})();
+var port = 9004;
+server.listen(port);
+console.log("Chat has started on port " + port + ".");
